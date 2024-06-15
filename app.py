@@ -225,7 +225,7 @@ if not st.session_state.data.empty:
     st.dataframe(st.session_state.data.dropna(axis=1, how='all'))
 
     # 设置字体路径
-    font_path = 'TTF\simsun.ttc'  # 替换为本地字体的路径
+    font_path = 'TTF/simsun.ttc'  # 替换为本地字体的路径
     font_prop = FontProperties(fname=font_path)
 
     # 绘制图表的函数
