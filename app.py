@@ -213,6 +213,8 @@ with st.form(key='data_form'):
             new_data = pd.DataFrame({'Category': [category], 'Value': [value]})
         elif chart_type in ["7. 热力图", "8. 等高线图"]:
             new_data = pd.DataFrame({'X': [x_value], 'Y': [y_value], 'Value': [value]})
+        elif chart_type == "2. 直方图":
+            new_data = pd.DataFrame({'Category': [category], 'X': [x_value]})
         elif chart_type == "9. 3D直方图":
             new_data = pd.DataFrame({'Category': [category], 'X': [x_value], 'Y': [y_value], 'Z': [z_value]})
         else:
