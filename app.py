@@ -42,7 +42,7 @@ st.sidebar.image(chart_images[chart_type][0], caption=chart_images[chart_type][1
 # 提供对应图表类型的Excel模板
 templates = {
     "1. 条形图": pd.DataFrame(columns=['Category', 'Value']),
-    "2. 直方图": pd.DataFrame(columns=['Category', 'X', 'Y']),
+    "2. 直方图": pd.DataFrame(columns=['Category', 'Value']),
     "3. 折线图": pd.DataFrame(columns=['Category', 'X', 'Y']),
     "4. 散点图": pd.DataFrame(columns=['Category', 'X', 'Y']),
     "5. 饼图": pd.DataFrame(columns=['Category', 'Value']),
@@ -279,7 +279,7 @@ if not st.session_state.data.empty:
         # 绘制直方图
         for category in data['Category'].unique():
             subset = data[data['Category'] == category]
-            plt.hist(subset['X'], bins=20, alpha=0.7, label=category, edgecolor='black')
+            plt.hist(subset['Value'], bins=20, alpha=0.7, label=category, edgecolor='black')
 
         plt.title(title, fontproperties=font_prop,fontsize=title_size)
         plt.xlabel(xlabel, fontproperties=font_prop,fontsize=xlabel_size)
