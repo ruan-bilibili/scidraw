@@ -66,7 +66,7 @@ st.sidebar.title("关于我")
 st.sidebar.write("""
 大家好，我是阮同学，目前在北京师范大学攻读博士。我平时喜欢编程捣鼓一些有趣的玩意儿。如果你有什么新奇的想法或者对我的作品有什么改进建议，欢迎告诉我！\n商务与学习交流：ruan_bilibili@163.com
 """)
-profile_image = Image.open("Image/me2.png")  # 替换为你的个人图片路径
+profile_image = Image.open("Image\me2.png")  # 替换为你的个人图片路径
 
 
 # 将图像转换为 base64 编码
@@ -225,7 +225,7 @@ if not st.session_state.data.empty:
     st.dataframe(st.session_state.data.dropna(axis=1, how='all'))
 
     # 设置字体路径
-    font_path = 'TTF/simsun.ttc'  # 替换为本地字体的路径
+    font_path = 'TTF\simsun.ttc'  # 替换为本地字体的路径
     font_prop = FontProperties(fname=font_path)
 
     # 绘制图表的函数
@@ -256,8 +256,10 @@ if not st.session_state.data.empty:
         fig.savefig(buf, format="png")
         buf.seek(0)
         st.download_button(label="下载图像", data=buf, file_name="bar_chart.png", mime="image/png")
-    
-     def draw_histogram(data):
+            
+
+
+    def draw_histogram(data):
         title = st.text_input('直方图标题', value='直方图')
         xlabel = st.text_input('X轴标签', value='值')
         ylabel = st.text_input('Y轴标签', value='频率')
@@ -287,6 +289,8 @@ if not st.session_state.data.empty:
         plt.savefig(buf, format="png")
         buf.seek(0)
         st.download_button(label="下载图像", data=buf, file_name="histogram.png", mime="image/png")
+
+
     
     def draw_line_plot(data):
         title = st.text_input('折线图标题', value='折线图')
