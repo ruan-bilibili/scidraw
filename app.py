@@ -195,6 +195,8 @@ with st.form(key='data_form'):
         category = st.text_input('类别', '' if st.session_state.form_reset else st.session_state.get('category', ''))
     if chart_type in ["1. 条形图", "5. 饼图", "6. 箱线图"]:
         value = st.number_input('数值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('value', 0.0))
+    elif chart_type == "2. 直方图":
+        x_value = st.number_input('X值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('x_value', 0.0))
     elif chart_type == "9. 3D直方图":
         x_value = st.number_input('X值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('x_value', 0.0))
         y_value = st.number_input('Y值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('y_value', 0.0))
