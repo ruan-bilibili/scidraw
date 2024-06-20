@@ -278,7 +278,7 @@ if not st.session_state.data.empty:
         plt.title(title, fontproperties=font_prop,fontsize=title_size)
         plt.xlabel(xlabel, fontproperties=font_prop,fontsize=xlabel_size)
         plt.ylabel(ylabel,fontproperties=font_prop, fontsize=ylabel_size)
-        plt.legend()
+        plt.legend(prop=font_prop)
         
         if add_grid:
             plt.grid(True)
