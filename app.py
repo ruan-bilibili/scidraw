@@ -207,7 +207,7 @@ with st.form(key='data_form'):
     submit = st.form_submit_button(label='添加数据')
 
     if submit:
-        if chart_type in ["1. 条形图", "5. 饼图", "6. 箱线图"]:
+        if chart_type in ["1. 条形图", "2. 频率直方图","5. 饼图", "6. 箱线图"]:
             new_data = pd.DataFrame({'Category': [category], 'Value': [value]})
         elif chart_type in ["7. 热力图", "8. 等高线图"]:
             new_data = pd.DataFrame({'X': [x_value], 'Y': [y_value], 'Value': [value]})
