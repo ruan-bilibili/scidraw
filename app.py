@@ -21,7 +21,7 @@ import base64
 
 ######################################侧边栏###############################################################
 # 选择图表类型
-chart_type = st.sidebar.selectbox("选择图表类型", ["1. 条形图", "2. 频率直方图", "3. 折线图", "4. 散点图", "5. 饼图", "6. 箱线图", "7. 热力图", "8. 等高线图", "9. 3D直方图"])
+chart_type = st.sidebar.selectbox("选择图表类型", ["1. 条形图", "2. 直方图", "3. 折线图", "4. 散点图", "5. 饼图", "6. 箱线图", "7. 热力图", "8. 等高线图", "9. 3D直方图"])
 
 # 在选择图表类型时显示相应的图像和子标题
 chart_images = {
@@ -42,7 +42,7 @@ st.sidebar.image(chart_images[chart_type][0], caption=chart_images[chart_type][1
 # 提供对应图表类型的Excel模板
 templates = {
     "1. 条形图": pd.DataFrame(columns=['Category', 'Value']),
-    "2. 频率直方图": pd.DataFrame(columns=['Category', 'X', 'Y']),
+    "2. 直方图": pd.DataFrame(columns=['Category', 'X', 'Y']),
     "3. 折线图": pd.DataFrame(columns=['Category', 'X', 'Y']),
     "4. 散点图": pd.DataFrame(columns=['Category', 'X', 'Y']),
     "5. 饼图": pd.DataFrame(columns=['Category', 'Value']),
@@ -193,7 +193,7 @@ def reset_form():
 with st.form(key='data_form'):
     if chart_type not in ["7. 热力图", "8. 等高线图"]:
         category = st.text_input('类别', '' if st.session_state.form_reset else st.session_state.get('category', ''))
-    if chart_type in ["1. 条形图", "2. 频率直方图","5. 饼图", "6. 箱线图"]:
+    if chart_type in ["1. 条形图", "5. 饼图", "6. 箱线图"]:
         value = st.number_input('数值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('value', 0.0))
     elif chart_type == "9. 3D直方图":
         x_value = st.number_input('X值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('x_value', 0.0))
@@ -207,7 +207,7 @@ with st.form(key='data_form'):
     submit = st.form_submit_button(label='添加数据')
 
     if submit:
-        if chart_type in ["1. 条形图", "2. 频率直方图","5. 饼图", "6. 箱线图"]:
+        if chart_type in ["1. 条形图", "5. 饼图", "6. 箱线图"]:
             new_data = pd.DataFrame({'Category': [category], 'Value': [value]})
         elif chart_type in ["7. 热力图", "8. 等高线图"]:
             new_data = pd.DataFrame({'X': [x_value], 'Y': [y_value], 'Value': [value]})
@@ -216,7 +216,7 @@ with st.form(key='data_form'):
         else:
             new_data = pd.DataFrame({'Category': [category], 'X': [x_value], 'Y': [y_value]})
         st.session_state.data = pd.concat([st.session_state.data, new_data], ignore_index=True)
-        st.success(f"数据添加成功: {('Category: ' + category + ' - ' if category else '')}{'Value: ' + str(value) if chart_type in ['1. 条形图',"2. 频率直方图" ,'5. 饼图', '6. 箱线图', '7. 热力图', '8. 等高线图'] else 'X: ' + str(x_value) + ', Y: ' + str(y_value) + (', Z: ' + str(z_value) if chart_type == '9. 3D直方图' else '')}")
+        st.success(f"数据添加成功: {('Category: ' + category + ' - ' if category else '')}{'Value: ' + str(value) if chart_type in ['1. 条形图', '5. 饼图', '6. 箱线图', '7. 热力图', '8. 等高线图'] else 'X: ' + str(x_value) + ', Y: ' + str(y_value) + (', Z: ' + str(z_value) if chart_type == '9. 3D直方图' else '')}")
         st.session_state.form_reset = False
 
 # 显示当前数据
@@ -273,7 +273,7 @@ if not st.session_state.data.empty:
         # 绘制直方图
         for category in data['Category'].unique():
             subset = data[data['Category'] == category]
-            plt.hist(subset=['Value'], bins=20, alpha=0.7, label=category, edgecolor='black')
+            plt.hist(subset['X'], bins=20, alpha=0.7, label=category, edgecolor='black')
 
         plt.title(title, fontproperties=font_prop,fontsize=title_size)
         plt.xlabel(xlabel, fontproperties=font_prop,fontsize=xlabel_size)
@@ -517,7 +517,7 @@ if not st.session_state.data.empty:
     # 图表绘制函数字典
     chart_functions = {
         "1. 条形图": draw_bar_chart,
-        "2. 频率直方图": draw_histogram,
+        "2. 直方图": draw_histogram,
         "3. 折线图": draw_line_plot,
         "4. 散点图": draw_scatter_plot,
         "5. 饼图": draw_pie_chart,
