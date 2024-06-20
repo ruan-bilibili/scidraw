@@ -258,35 +258,35 @@ if not st.session_state.data.empty:
         st.download_button(label="下载图像", data=buf, file_name="bar_chart.png", mime="image/png")
     
      def draw_histogram(data):
-            title = st.text_input('直方图标题', value='直方图')
-            xlabel = st.text_input('X轴标签', value='值')
-            ylabel = st.text_input('Y轴标签', value='频率')
-            title_size = st.slider('标题字体大小', 10, 40, 20)
-            xlabel_size = st.slider('X轴标签字体大小', 10, 40, 15)
-            ylabel_size = st.slider('Y轴标签字体大小', 10, 40, 15)
-            add_grid = st.checkbox('添加辅助线')
-    
-            plt.figure(figsize=(10, 6))
-    
-            # 绘制直方图
-            for category in data['Category'].unique():
-                subset = data[data['Category'] == category]
-                plt.hist(subset['X'], bins=20, alpha=0.7, label=category, edgecolor='black')
-    
-            plt.title(title, fontproperties=font_prop,fontsize=title_size)
-            plt.xlabel(xlabel, fontproperties=font_prop,fontsize=xlabel_size)
-            plt.ylabel(ylabel,fontproperties=font_prop, fontsize=ylabel_size)
-            plt.legend()
-            
-            if add_grid:
-                plt.grid(True)
-    
-            st.pyplot(plt)
-            
-            buf = io.BytesIO()
-            plt.savefig(buf, format="png")
-            buf.seek(0)
-            st.download_button(label="下载图像", data=buf, file_name="histogram.png", mime="image/png")
+        title = st.text_input('直方图标题', value='直方图')
+        xlabel = st.text_input('X轴标签', value='值')
+        ylabel = st.text_input('Y轴标签', value='频率')
+        title_size = st.slider('标题字体大小', 10, 40, 20)
+        xlabel_size = st.slider('X轴标签字体大小', 10, 40, 15)
+        ylabel_size = st.slider('Y轴标签字体大小', 10, 40, 15)
+        add_grid = st.checkbox('添加辅助线')
+
+        plt.figure(figsize=(10, 6))
+
+        # 绘制直方图
+        for category in data['Category'].unique():
+            subset = data[data['Category'] == category]
+            plt.hist(subset['X'], bins=20, alpha=0.7, label=category, edgecolor='black')
+
+        plt.title(title, fontproperties=font_prop,fontsize=title_size)
+        plt.xlabel(xlabel, fontproperties=font_prop,fontsize=xlabel_size)
+        plt.ylabel(ylabel,fontproperties=font_prop, fontsize=ylabel_size)
+        plt.legend()
+        
+        if add_grid:
+            plt.grid(True)
+
+        st.pyplot(plt)
+        
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png")
+        buf.seek(0)
+        st.download_button(label="下载图像", data=buf, file_name="histogram.png", mime="image/png")
     
     def draw_line_plot(data):
         title = st.text_input('折线图标题', value='折线图')
