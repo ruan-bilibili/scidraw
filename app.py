@@ -216,7 +216,7 @@ with st.form(key='data_form'):
         else:
             new_data = pd.DataFrame({'Category': [category], 'X': [x_value], 'Y': [y_value]})
         st.session_state.data = pd.concat([st.session_state.data, new_data], ignore_index=True)
-        st.success(f"数据添加成功: {('Category: ' + category + ' - ' if category else '')}{'Value: ' + str(value) if chart_type in ['1. 条形图',"2. 频率直方图" ,'5. 饼图', '6. 箱线图', '7. 热力图', '8. 等高线图'] else 'X: ' + str(x_value) + ', Y: ' + str(y_value) + (', Z: ' + str(z_value) if chart_type == '9. 3D直方图' else '')}")
+        st.success(f"数据添加成功: {('Category: ' + category + ' - ' if category else '')}{'Value: ' + str(value) if chart_type in ['1. 条形图','2. 频率直方图','5. 饼图', '6. 箱线图', '7. 热力图', '8. 等高线图'] else 'X: ' + str(x_value) + ', Y: ' + str(y_value) + (', Z: ' + str(z_value) if chart_type == '9. 3D直方图' else '')}")
         st.session_state.form_reset = False
 
 # 显示当前数据
