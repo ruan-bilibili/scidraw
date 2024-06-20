@@ -26,7 +26,7 @@ chart_type = st.sidebar.selectbox("选择图表类型", ["1. 条形图", "2. 直
 # 在选择图表类型时显示相应的图像和子标题
 chart_images = {
     "1. 条形图": ("Image/bar_chart_example.png", "条形图示例", "1. 条形图（Bar Chart）"),
-    "2. 直方图": ("Image/histogram_example.png", "直方图示例", "2. 直方图（Histogram）"),
+    "2. 频率直方图": ("Image/histogram_example.png", "频率直方图示例", "2. 频率直方图（Frequency histogram）"),
     "3. 折线图": ("Image/Line_Chart_Example.png", "折线图示例", "3. 折线图（Line Plot）"),
     "4. 散点图": ("Image/Scatter_Plot_Example.png", "散点图示例", "4. 散点图（Scatter Plot）"),
     "5. 饼图": ("Image/Pie_Chart_Example.png", "饼图示例", "5. 饼图（Pie Chart）"),
@@ -42,7 +42,7 @@ st.sidebar.image(chart_images[chart_type][0], caption=chart_images[chart_type][1
 # 提供对应图表类型的Excel模板
 templates = {
     "1. 条形图": pd.DataFrame(columns=['Category', 'Value']),
-    "2. 直方图": pd.DataFrame(columns=['Category', 'X', 'Y']),
+    "2. 频率直方图": pd.DataFrame(columns=['Category', 'X', 'Y']),
     "3. 折线图": pd.DataFrame(columns=['Category', 'X', 'Y']),
     "4. 散点图": pd.DataFrame(columns=['Category', 'X', 'Y']),
     "5. 饼图": pd.DataFrame(columns=['Category', 'Value']),
@@ -278,7 +278,7 @@ if not st.session_state.data.empty:
         plt.title(title, fontproperties=font_prop,fontsize=title_size)
         plt.xlabel(xlabel, fontproperties=font_prop,fontsize=xlabel_size)
         plt.ylabel(ylabel,fontproperties=font_prop, fontsize=ylabel_size)
-        plt.legend(prop=font_prop)
+        plt.legend()
         
         if add_grid:
             plt.grid(True)
@@ -517,7 +517,7 @@ if not st.session_state.data.empty:
     # 图表绘制函数字典
     chart_functions = {
         "1. 条形图": draw_bar_chart,
-        "2. 直方图": draw_histogram,
+        "2. 频率直方图": draw_histogram,
         "3. 折线图": draw_line_plot,
         "4. 散点图": draw_scatter_plot,
         "5. 饼图": draw_pie_chart,
