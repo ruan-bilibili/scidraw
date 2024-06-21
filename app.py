@@ -191,39 +191,33 @@ def reset_form():
 
 # 输入表单
 with st.form(key='data_form'):
-    category = None
-    value = None
-    x_value = None
-    y_value = None
-    z_value = None
-
-    if chart_type not in ["7. 热力图", "8. 等高线图", "9. 3D直方图"]:
+    if chart_type not in ["7. 热力图", "8. 等高线图"]:
         category = st.text_input('类别', '' if st.session_state.form_reset else st.session_state.get('category', ''))
-    if chart_type in ["1. 条形图", "5. 饼图", "6. 箱线图", "2. 直方图"]:
+    if chart_type in ["1. 条形图", "5. 饼图", "6. 箱线图","2. 直方图"]:
         value = st.number_input('数值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('value', 0.0))
     elif chart_type == "9. 3D直方图":
-        category = st.text_input('类别', '' if st.session_state.form_reset else st.session_state.get('category', ''))
         x_value = st.number_input('X值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('x_value', 0.0))
         y_value = st.number_input('Y值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('y_value', 0.0))
         z_value = st.number_input('Z值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('z_value', 0.0))
-    elif chart_type in ["7. 热力图", "8. 等高线图"]:
+    else:
         x_value = st.number_input('X值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('x_value', 0.0))
         y_value = st.number_input('Y值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('y_value', 0.0))
-        value = st.number_input('数值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('value', 0.0))
+        if chart_type in ["7. 热力图", "8. 等高线图"]:
+            value = st.number_input('数值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('value', 0.0))
     submit = st.form_submit_button(label='添加数据')
 
     if submit:
-        new_data = pd.DataFrame()
-        if chart_type in ["1. 条形图", "5. 饼图", "6. 箱线图", "2. 直方图"]:
+        if chart_type in ["1. 条形图","2. 直方图", "5. 饼图", "6. 箱线图"]:
             new_data = pd.DataFrame({'Category': [category], 'Value': [value]})
         elif chart_type in ["7. 热力图", "8. 等高线图"]:
             new_data = pd.DataFrame({'X': [x_value], 'Y': [y_value], 'Value': [value]})
         elif chart_type == "9. 3D直方图":
             new_data = pd.DataFrame({'Category': [category], 'X': [x_value], 'Y': [y_value], 'Z': [z_value]})
+        else:
+            new_data = pd.DataFrame({'Category': [category], 'X': [x_value], 'Y': [y_value]})
         st.session_state.data = pd.concat([st.session_state.data, new_data], ignore_index=True)
-        st.success(f"数据添加成功: {('Category: ' + category + ' - ' if category else '')}{'Value: ' + str(value) if value is not None else 'X: ' + str(x_value) + ', Y: ' + str(y_value) + (', Z: ' + str(z_value) if z_value is not None else '')}")
+        st.success(f"数据添加成功: {('Category: ' + category + ' - ' if category else '')}{'Value: ' + str(value) if chart_type in ['1. 条形图', '2. 直方图','5. 饼图', '6. 箱线图', '7. 热力图', '8. 等高线图'] else 'X: ' + str(x_value) + ', Y: ' + str(y_value) + (', Z: ' + str(z_value) if chart_type == '9. 3D直方图' else '')}")
         st.session_state.form_reset = False
-
 
 # 显示当前数据
 if not st.session_state.data.empty:
@@ -279,18 +273,18 @@ if not st.session_state.data.empty:
         # 绘制直方图
         for category in data['Category'].unique():
             subset = data[data['Category'] == category]
-            plt.hist(subset['Value'], bins=20, alpha=0.7, label=category, edgecolor='black')
+            plt.hist(subset['Value'], bins=20, alpha=0.7, label=category, edgecolor='black', density=True)
 
-        plt.title(title, fontproperties=font_prop,fontsize=title_size)
-        plt.xlabel(xlabel, fontproperties=font_prop,fontsize=xlabel_size)
-        plt.ylabel(ylabel,fontproperties=font_prop, fontsize=ylabel_size)
-        plt.legend()
-        
+        plt.title(title,  fontproperties=font_prop,fontsize=title_size)
+        plt.xlabel(xlabel,  fontproperties=font_prop,fontsize=xlabel_size)
+        plt.ylabel(ylabel,  fontproperties=font_prop,fontsize=ylabel_size)
+        plt.legend(prop=font_prop)
+
         if add_grid:
             plt.grid(True)
 
         st.pyplot(plt)
-        
+
         buf = io.BytesIO()
         plt.savefig(buf, format="png")
         buf.seek(0)
