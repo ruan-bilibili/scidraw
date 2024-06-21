@@ -21,12 +21,12 @@ import base64
 
 ######################################侧边栏###############################################################
 # 选择图表类型
-chart_type = st.sidebar.selectbox("选择图表类型", ["1. 条形图", "2. 直方图", "3. 折线图", "4. 散点图", "5. 饼图", "6. 箱线图", "7. 热力图", "8. 等高线图", "9. 3D直方图"])
+chart_type = st.sidebar.selectbox("选择图表类型", ["1. 条形图", "2. 频率直方图", "3. 折线图", "4. 散点图", "5. 饼图", "6. 箱线图", "7. 热力图", "8. 等高线图", "9. 3D直方图"])
 
 # 在选择图表类型时显示相应的图像和子标题
 chart_images = {
     "1. 条形图": ("Image/bar_chart_example.png", "条形图示例", "1. 条形图（Bar Chart）"),
-    "2. 直方图": ("Image/histogram_example.png", "直方图示例", "2. 直方图（Histogram）"),
+    "2. 频率直方图": ("Image/histogram_example.png", "频率直方图示例", "2. 频率直方图（Frequency Histogram）"),
     "3. 折线图": ("Image/Line_Chart_Example.png", "折线图示例", "3. 折线图（Line Plot）"),
     "4. 散点图": ("Image/Scatter_Plot_Example.png", "散点图示例", "4. 散点图（Scatter Plot）"),
     "5. 饼图": ("Image/Pie_Chart_Example.png", "饼图示例", "5. 饼图（Pie Chart）"),
@@ -42,7 +42,7 @@ st.sidebar.image(chart_images[chart_type][0], caption=chart_images[chart_type][1
 # 提供对应图表类型的Excel模板
 templates = {
     "1. 条形图": pd.DataFrame(columns=['Category', 'Value']),
-    "2. 直方图": pd.DataFrame(columns=['Category', 'Value']),
+    "2. 频率直方图": pd.DataFrame(columns=['Category', 'Value']),
     "3. 折线图": pd.DataFrame(columns=['Category', 'X', 'Y']),
     "4. 散点图": pd.DataFrame(columns=['Category', 'X', 'Y']),
     "5. 饼图": pd.DataFrame(columns=['Category', 'Value']),
@@ -193,7 +193,7 @@ def reset_form():
 with st.form(key='data_form'):
     if chart_type not in ["7. 热力图", "8. 等高线图"]:
         category = st.text_input('类别', '' if st.session_state.form_reset else st.session_state.get('category', ''))
-    if chart_type in ["1. 条形图", "5. 饼图", "6. 箱线图","2. 直方图"]:
+    if chart_type in ["1. 条形图", "5. 饼图", "6. 箱线图","2. 频率直方图"]:
         value = st.number_input('数值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('value', 0.0))
     elif chart_type == "9. 3D直方图":
         x_value = st.number_input('X值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('x_value', 0.0))
@@ -207,7 +207,7 @@ with st.form(key='data_form'):
     submit = st.form_submit_button(label='添加数据')
 
     if submit:
-        if chart_type in ["1. 条形图","2. 直方图", "5. 饼图", "6. 箱线图"]:
+        if chart_type in ["1. 条形图","2. 频率直方图", "5. 饼图", "6. 箱线图"]:
             new_data = pd.DataFrame({'Category': [category], 'Value': [value]})
         elif chart_type in ["7. 热力图", "8. 等高线图"]:
             new_data = pd.DataFrame({'X': [x_value], 'Y': [y_value], 'Value': [value]})
@@ -216,7 +216,7 @@ with st.form(key='data_form'):
         else:
             new_data = pd.DataFrame({'Category': [category], 'X': [x_value], 'Y': [y_value]})
         st.session_state.data = pd.concat([st.session_state.data, new_data], ignore_index=True)
-        st.success(f"数据添加成功: {('Category: ' + category + ' - ' if category else '')}{'Value: ' + str(value) if chart_type in ['1. 条形图', '2. 直方图','5. 饼图', '6. 箱线图', '7. 热力图', '8. 等高线图'] else 'X: ' + str(x_value) + ', Y: ' + str(y_value) + (', Z: ' + str(z_value) if chart_type == '9. 3D直方图' else '')}")
+        st.success(f"数据添加成功: {('Category: ' + category + ' - ' if category else '')}{'Value: ' + str(value) if chart_type in ['1. 条形图', '2. 频率直方图','5. 饼图', '6. 箱线图', '7. 热力图', '8. 等高线图'] else 'X: ' + str(x_value) + ', Y: ' + str(y_value) + (', Z: ' + str(z_value) if chart_type == '9. 3D直方图' else '')}")
         st.session_state.form_reset = False
 
 # 显示当前数据
@@ -260,9 +260,9 @@ if not st.session_state.data.empty:
 
 
     def draw_histogram(data):
-        title = st.text_input('直方图标题', value='直方图')
+        title = st.text_input('频率直方图标题', value='频率直方图')
         xlabel = st.text_input('X轴标签', value='值')
-        ylabel = st.text_input('Y轴标签', value='频率')
+        ylabel = st.text_input('Y轴标签', value='频率 (%)')
         title_size = st.slider('标题字体大小', 10, 40, 20)
         xlabel_size = st.slider('X轴标签字体大小', 10, 40, 15)
         ylabel_size = st.slider('Y轴标签字体大小', 10, 40, 15)
@@ -273,15 +273,18 @@ if not st.session_state.data.empty:
         # 绘制直方图
         for category in data['Category'].unique():
             subset = data[data['Category'] == category]
-            plt.hist(subset['Value'], bins=20, alpha=0.7, label=category, edgecolor='black', density=True)
+            weights = (np.ones_like(subset['Value']) / len(subset['Value'])) * 100
+            plt.hist(subset['Value'], bins=20, alpha=0.7, label=category, edgecolor='black', weights=weights)
 
-        plt.title(title,  fontproperties=font_prop,fontsize=title_size)
-        plt.xlabel(xlabel,  fontproperties=font_prop,fontsize=xlabel_size)
-        plt.ylabel(ylabel,  fontproperties=font_prop,fontsize=ylabel_size)
+        plt.title(title,fontproperties=font_prop, fontsize=title_size)
+        plt.xlabel(xlabel,fontproperties=font_prop, fontsize=xlabel_size)
+        plt.ylabel(ylabel,fontproperties=font_prop, fontsize=ylabel_size)
         plt.legend(prop=font_prop)
 
         if add_grid:
             plt.grid(True)
+
+        plt.ylim(0, 100)
 
         st.pyplot(plt)
 
@@ -289,6 +292,7 @@ if not st.session_state.data.empty:
         plt.savefig(buf, format="png")
         buf.seek(0)
         st.download_button(label="下载图像", data=buf, file_name="histogram.png", mime="image/png")
+
 
 
     
@@ -517,7 +521,7 @@ if not st.session_state.data.empty:
     # 图表绘制函数字典
     chart_functions = {
         "1. 条形图": draw_bar_chart,
-        "2. 直方图": draw_histogram,
+        "2. 频率直方图": draw_histogram,
         "3. 折线图": draw_line_plot,
         "4. 散点图": draw_scatter_plot,
         "5. 饼图": draw_pie_chart,
