@@ -271,21 +271,29 @@ if not st.session_state.data.empty:
         plt.figure(figsize=(10, 6))
 
         # 绘制直方图
-        for i, category in enumerate(data['Category'].unique()):
-            subset = data[data['Category'] == category]
-            weights = (np.ones_like(subset['Value']) / len(subset['Value'])) * 100
-            plt.hist(subset['Value'], bins=30, alpha=0.7, label=category, edgecolor='black', weights=weights)
+        bins = 30
+        alpha = 0.7
 
-        plt.title(title,fontproperties=font_prop, fontsize=title_size)
-        plt.xlabel(xlabel, fontproperties=font_prop,fontsize=xlabel_size)
-        plt.ylabel(ylabel,fontproperties=font_prop, fontsize=ylabel_size)
+        max_frequency = 0
+
+        for idx, category in enumerate(data['Category'].unique()):
+            subset = data[data['Category'] == category]
+            weights = np.ones_like(subset['Value']) / len(subset['Value']) * 100
+            hist, _ = np.histogram(subset['Value'], bins=bins, weights=weights)
+            max_frequency = max(max_frequency, max(hist))
+            plt.hist(subset['Value'], bins=bins, alpha=alpha, label=category, edgecolor='black', weights=weights)
+
+        plt.title(title, fontproperties=font_prop,fontsize=title_size)
+        plt.xlabel(xlabel,fontproperties=font_prop, fontsize=xlabel_size)
+        plt.ylabel(ylabel, fontproperties=font_prop,fontsize=ylabel_size)
         plt.legend(prop=font_prop)
 
         if add_grid:
             plt.grid(True)
 
-        plt.ylim(0, 10)  # Adjusted to show better distribution percentage
-        plt.yticks([2, 4, 6, 8, 10], ['20', '40', '60', '80', '100'])  # 替换Y轴的刻度标签
+        y_max = min(max_frequency * 1.1, 100)  # 动态设定y轴上限，且不超过100%
+        plt.ylim(0, y_max)
+        plt.yticks(np.arange(0, y_max + 1, y_max / 5), [f'{x:.0f}' for x in np.arange(0, y_max + 1, y_max / 5)])
 
         st.pyplot(plt)
 
@@ -293,7 +301,6 @@ if not st.session_state.data.empty:
         plt.savefig(buf, format="png")
         buf.seek(0)
         st.download_button(label="下载图像", data=buf, file_name="histogram.png", mime="image/png")
-
 
 
 
