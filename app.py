@@ -271,20 +271,20 @@ if not st.session_state.data.empty:
         plt.figure(figsize=(10, 6))
 
         # 绘制直方图
-        for category in data['Category'].unique():
+        for i, category in enumerate(data['Category'].unique()):
             subset = data[data['Category'] == category]
             weights = (np.ones_like(subset['Value']) / len(subset['Value'])) * 100
-            plt.hist(subset['Value'], bins=20, alpha=0.7, label=category, edgecolor='black', weights=weights)
+            plt.hist(subset['Value'], bins=30, alpha=0.7, label=category, edgecolor='black', weights=weights)
 
         plt.title(title,fontproperties=font_prop, fontsize=title_size)
-        plt.xlabel(xlabel,fontproperties=font_prop, fontsize=xlabel_size)
+        plt.xlabel(xlabel, fontproperties=font_prop,fontsize=xlabel_size)
         plt.ylabel(ylabel,fontproperties=font_prop, fontsize=ylabel_size)
         plt.legend(prop=font_prop)
 
         if add_grid:
             plt.grid(True)
 
-        plt.ylim(0, 100)
+        plt.ylim(0, 10)  # Adjusted to show better distribution percentage
 
         st.pyplot(plt)
 
@@ -292,6 +292,7 @@ if not st.session_state.data.empty:
         plt.savefig(buf, format="png")
         buf.seek(0)
         st.download_button(label="下载图像", data=buf, file_name="histogram.png", mime="image/png")
+
 
 
 
