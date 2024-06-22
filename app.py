@@ -285,6 +285,7 @@ if not st.session_state.data.empty:
             plt.grid(True)
 
         plt.ylim(0, 10)  # Adjusted to show better distribution percentage
+        plt.yticks([2, 4, 6, 8, 10], ['20', '40', '60', '80', '100'])  # 替换Y轴的刻度标签
 
         st.pyplot(plt)
 
