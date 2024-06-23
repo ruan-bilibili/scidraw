@@ -304,6 +304,9 @@ if not st.session_state.data.empty:
 
 
 
+
+
+
     
     def draw_line_plot(data):
         title = st.text_input('折线图标题', value='折线图')
