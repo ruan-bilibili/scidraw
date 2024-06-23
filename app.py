@@ -9,15 +9,10 @@ from mpl_toolkits.mplot3d import Axes3D
 from PIL import Image
 from io import BytesIO
 import base64
-######################################顶部设计###############################################################
 
 ######################################顶部设计###############################################################
 
-
-
-
-
-
+######################################顶部设计###############################################################
 
 ######################################侧边栏###############################################################
 # 选择图表类型
@@ -38,7 +33,6 @@ chart_images = {
 
 st.sidebar.image(chart_images[chart_type][0], caption=chart_images[chart_type][1])
 
-
 # 提供对应图表类型的Excel模板
 templates = {
     "1. 条形图": pd.DataFrame(columns=['Category', 'Value']),
@@ -58,8 +52,8 @@ with pd.ExcelWriter(excel_buffer, engine='xlsxwriter') as writer:
     excel_template.to_excel(writer, index=False, sheet_name='Sheet1')
 excel_buffer.seek(0)
 
-
 st.sidebar.markdown('---')
+
 ######################################添加个人介绍###############################################################
 st.sidebar.title("关于我")
 
@@ -67,7 +61,6 @@ st.sidebar.write("""
 大家好，我是阮同学，目前在北京师范大学攻读博士。我平时喜欢编程捣鼓一些有趣的玩意儿。如果你有什么新奇的想法或者对我的作品有什么改进建议，欢迎告诉我！\n商务与学习交流：ruan_bilibili@163.com
 """)
 profile_image = Image.open("Image/me2.png")  # 替换为你的个人图片路径
-
 
 # 将图像转换为 base64 编码
 buffered = BytesIO()
@@ -85,11 +78,6 @@ st.sidebar.markdown(
 )
 ######################################添加个人介绍###############################################################
 ######################################侧边栏####################################################################################
-
-
-
-
-
 
 ######################################主界面###############################################################
 
@@ -117,107 +105,97 @@ scrolling_text = """
 # 在Streamlit应用中显示滚动字幕
 st.markdown(scrolling_text, unsafe_allow_html=True)
 
-
-
-
 # 设置页面标题
 st.markdown("<h1 style='white-space: nowrap;'>科研绘图平台（Scientific Drawing Platform）</h1>", unsafe_allow_html=True)
 st.subheader(chart_images[chart_type][2])
 
+input_method = st.radio("选择输入方式", ('手动输入上传', 'Excel批量上传'))
 
+if input_method == 'Excel批量上传':
+    st.markdown('---')
+    st.markdown('<p style="font-size:25px; color:black; font-weight:bold;">Excel批量上传数据</p>', unsafe_allow_html=True)
+    #批量上传数据
+    # 使用st.columns将按钮放在同一行
+    col1, col2 = st.columns(2)
 
-#st.markdown('---')
-st.markdown('<p style="font-size:25px; color:black; font-weight:bold;">批量上传数据</p>',unsafe_allow_html=True)
-#批量上传数据
-# 使用st.columns将按钮放在同一行
-col1, col2 = st.columns(2)
+    # 表单内容
+    with col1:
+        # 添加文字说明
+        st.markdown(
+            """
+            <div style="width: 150px;">
+                <p style="font-size: 12px;">请下载模板，填写好数据，再点击右边->批量上传！--></p>
+            </div>
+            """, unsafe_allow_html=True
+        )
+        # 下载Excel模板按钮
+        st.download_button(
+            label="下载Excel模板",
+            data=excel_buffer,
+            file_name=f"{chart_type}_template.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
-# 表单内容
-with col1:
-    # 添加文字说明
-    st.markdown(
-        """
-        <div style="width: 150px;">
-            <p style="font-size: 12px;">请下载模板，填写好数据，再点击右边->批量上传！--></p>
-        </div>
-        """, unsafe_allow_html=True
-    )
-    # 下载Excel模板按钮
-    st.download_button(
-        label="下载Excel模板",
-        data=excel_buffer,
-        file_name=f"{chart_type}_template.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+    with col2:
+        # Excel文件上传按钮
+        uploaded_file = st.file_uploader("上传Excel文件", type=["xlsx"])
 
-with col2:
-    # Excel文件上传按钮
-    uploaded_file = st.file_uploader("上传Excel文件", type=["xlsx"])
-
-# 处理上传文件
-if uploaded_file is not None:
-    uploaded_data = pd.read_excel(uploaded_file)
-    if set(uploaded_data.columns) == set(excel_template.columns):
-        if 'data' not in st.session_state:
-            st.session_state.data = pd.DataFrame()
-        st.session_state.data = pd.concat([st.session_state.data, uploaded_data], ignore_index=True)
-        st.success("Excel文件上传成功!")
-    else:
-        st.error("Excel文件的列与模板不匹配，请使用正确的模板格式。")
-
-    st.write("上传的数据:")
-    st.dataframe(uploaded_data)
-
-
-
-
-
-
-
-
-st.markdown('---')
-st.markdown('<p style="font-size:25px; color:black; font-weight:bold;">逐个上传数据</p>',unsafe_allow_html=True)
-# 初始化数据存储
-if 'data' not in st.session_state:
-    st.session_state.data = pd.DataFrame(columns=['Category', 'Value', 'X', 'Y'])
-
-# 重置表单输入
-if 'form_reset' not in st.session_state:
-    st.session_state.form_reset = False
-
-def reset_form():
-    st.session_state.form_reset = True
-
-
-# 输入表单
-with st.form(key='data_form'):
-    if chart_type not in ["7. 热力图", "8. 等高线图"]:
-        category = st.text_input('类别', '' if st.session_state.form_reset else st.session_state.get('category', ''))
-    if chart_type in ["1. 条形图", "5. 饼图", "6. 箱线图","2. 频率直方图"]:
-        value = st.number_input('数值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('value', 0.0))
-    elif chart_type == "9. 3D直方图":
-        x_value = st.number_input('X值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('x_value', 0.0))
-        y_value = st.number_input('Y值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('y_value', 0.0))
-        z_value = st.number_input('Z值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('z_value', 0.0))
-    else:
-        x_value = st.number_input('X值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('x_value', 0.0))
-        y_value = st.number_input('Y值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('y_value', 0.0))
-        if chart_type in ["7. 热力图", "8. 等高线图"]:
-            value = st.number_input('数值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('value', 0.0))
-    submit = st.form_submit_button(label='添加数据')
-
-    if submit:
-        if chart_type in ["1. 条形图","2. 频率直方图", "5. 饼图", "6. 箱线图"]:
-            new_data = pd.DataFrame({'Category': [category], 'Value': [value]})
-        elif chart_type in ["7. 热力图", "8. 等高线图"]:
-            new_data = pd.DataFrame({'X': [x_value], 'Y': [y_value], 'Value': [value]})
-        elif chart_type == "9. 3D直方图":
-            new_data = pd.DataFrame({'Category': [category], 'X': [x_value], 'Y': [y_value], 'Z': [z_value]})
+    # 处理上传文件
+    if uploaded_file is not None:
+        uploaded_data = pd.read_excel(uploaded_file)
+        if set(uploaded_data.columns) == set(excel_template.columns):
+            if 'data' not in st.session_state:
+                st.session_state.data = pd.DataFrame()
+            st.session_state.data = pd.concat([st.session_state.data, uploaded_data], ignore_index=True)
+            st.success("Excel文件上传成功!")
         else:
-            new_data = pd.DataFrame({'Category': [category], 'X': [x_value], 'Y': [y_value]})
-        st.session_state.data = pd.concat([st.session_state.data, new_data], ignore_index=True)
-        st.success(f"数据添加成功: {('Category: ' + category + ' - ' if category else '')}{'Value: ' + str(value) if chart_type in ['1. 条形图', '2. 频率直方图','5. 饼图', '6. 箱线图', '7. 热力图', '8. 等高线图'] else 'X: ' + str(x_value) + ', Y: ' + str(y_value) + (', Z: ' + str(z_value) if chart_type == '9. 3D直方图' else '')}")
+            st.error("Excel文件的列与模板不匹配，请使用正确的模板格式。")
+
+        st.write("上传的数据:")
+        st.dataframe(uploaded_data)
+else:
+    st.markdown('---')
+    st.markdown('<p style="font-size:25px; color:black; font-weight:bold;">手动输入上传数据</p>', unsafe_allow_html=True)
+    # 初始化数据存储
+    if 'data' not in st.session_state:
+        st.session_state.data = pd.DataFrame(columns=['Category', 'Value', 'X', 'Y'])
+
+    # 重置表单输入
+    if 'form_reset' not in st.session_state:
         st.session_state.form_reset = False
+
+    def reset_form():
+        st.session_state.form_reset = True
+
+    # 输入表单
+    with st.form(key='data_form'):
+        if chart_type not in ["7. 热力图", "8. 等高线图"]:
+            category = st.text_input('类别', '' if st.session_state.form_reset else st.session_state.get('category', ''))
+        if chart_type in ["1. 条形图", "5. 饼图", "6. 箱线图","2. 频率直方图"]:
+            value = st.number_input('数值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('value', 0.0))
+        elif chart_type == "9. 3D直方图":
+            x_value = st.number_input('X值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('x_value', 0.0))
+            y_value = st.number_input('Y值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('y_value', 0.0))
+            z_value = st.number_input('Z值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('z_value', 0.0))
+        else:
+            x_value = st.number_input('X值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('x_value', 0.0))
+            y_value = st.number_input('Y值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('y_value', 0.0))
+            if chart_type in ["7. 热力图", "8. 等高线图"]:
+                value = st.number_input('数值', min_value=0.0, step=1.0, value=0.0 if st.session_state.form_reset else st.session_state.get('value', 0.0))
+        submit = st.form_submit_button(label='添加数据')
+
+        if submit:
+            if chart_type in ["1. 条形图","2. 频率直方图", "5. 饼图", "6. 箱线图"]:
+                new_data = pd.DataFrame({'Category': [category], 'Value': [value]})
+            elif chart_type in ["7. 热力图", "8. 等高线图"]:
+                new_data = pd.DataFrame({'X': [x_value], 'Y': [y_value], 'Value': [value]})
+            elif chart_type == "9. 3D直方图":
+                new_data = pd.DataFrame({'Category': [category], 'X': [x_value], 'Y': [y_value], 'Z': [z_value]})
+            else:
+                new_data = pd.DataFrame({'Category': [category], 'X': [x_value], 'Y': [y_value]})
+            st.session_state.data = pd.concat([st.session_state.data, new_data], ignore_index=True)
+            st.success(f"数据添加成功: {('Category: ' + category + ' - ' if category else '')}{'Value: ' + str(value) if chart_type in ['1. 条形图', '2. 频率直方图','5. 饼图', '6. 箱线图', '7. 热力图', '8. 等高线图'] else 'X: ' + str(x_value) + ', Y: ' + str(y_value) + (', Z: ' + str(z_value) if chart_type == '9. 3D直方图' else '')}")
+            st.session_state.form_reset = False
 
 # 显示当前数据
 if not st.session_state.data.empty:
@@ -256,8 +234,6 @@ if not st.session_state.data.empty:
         fig.savefig(buf, format="png")
         buf.seek(0)
         st.download_button(label="下载图像", data=buf, file_name="bar_chart.png", mime="image/png")
-            
-
 
     def draw_histogram(data):
         title = st.text_input('频率直方图标题', value='频率直方图')
@@ -302,12 +278,6 @@ if not st.session_state.data.empty:
         buf.seek(0)
         st.download_button(label="下载图像", data=buf, file_name="histogram.png", mime="image/png")
 
-
-
-
-
-
-    
     def draw_line_plot(data):
         title = st.text_input('折线图标题', value='折线图')
         xlabel = st.text_input('X轴标签', value='X值')
@@ -338,7 +308,7 @@ if not st.session_state.data.empty:
         plt.savefig(buf, format="png")
         buf.seek(0)
         st.download_button(label="下载图像", data=buf, file_name="line_plot.png", mime="image/png")
-    
+
     def draw_scatter_plot(data):
         title = st.text_input('散点图标题', value='散点图')
         xlabel = st.text_input('X轴标签', value='X值')
@@ -369,7 +339,7 @@ if not st.session_state.data.empty:
         plt.savefig(buf, format="png")
         buf.seek(0)
         st.download_button(label="下载图像", data=buf, file_name="scatter_plot.png", mime="image/png")
-    
+
     def draw_pie_chart(data):
         title = st.text_input('饼图标题', value='饼图')
         title_size = st.slider('标题字体大小', 10, 40, 20)
@@ -385,7 +355,7 @@ if not st.session_state.data.empty:
         fig.savefig(buf, format="png")
         buf.seek(0)
         st.download_button(label="下载图像", data=buf, file_name="pie_chart.png", mime="image/png")
-    
+
     def draw_box_plot(data):
         title = st.text_input('箱线图标题', value='箱线图')
         x_axis_label = st.text_input('X轴标签', '类别')
@@ -413,7 +383,7 @@ if not st.session_state.data.empty:
         fig.savefig(buf, format="png")
         buf.seek(0)
         st.download_button(label="下载图像", data=buf, file_name="box_plot.png", mime="image/png")
-    
+
     def draw_heatmap(data):
         title = st.text_input('热力图标题', value='热力图')
         x_axis_label = st.text_input('X轴标签', 'X值')
@@ -445,7 +415,7 @@ if not st.session_state.data.empty:
             st.download_button(label="下载图像", data=buf, file_name="heatmap.png", mime="image/png")
         except ValueError as e:
             st.error(f"数据格式不正确: {e}")
-    
+
     def draw_contour_plot(data):
         title = st.text_input('等高线图标题', value='等高线图')
         x_axis_label = st.text_input('X轴标签', 'X值')
@@ -482,7 +452,7 @@ if not st.session_state.data.empty:
                 st.error("数据点不足，无法绘制等高线图。请添加更多数据点。")
         except ValueError as e:
             st.error(f"数据格式不正确: {e}")
-    
+
     def draw_3d_histogram(data):
         title = st.text_input('3D直方图标题', value='3D直方图')
         xlabel = st.text_input('X轴标签', value='X值')
@@ -542,7 +512,7 @@ if not st.session_state.data.empty:
         "8. 等高线图": draw_contour_plot,
         "9. 3D直方图": draw_3d_histogram
     }
-    
+
     # 调用对应的绘制函数
     if chart_type in chart_functions:
         chart_functions[chart_type](st.session_state.data)
